@@ -151,7 +151,7 @@ jobscam_guard/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/jobshield-ai.git
+git clone https://github.com/vinodhiniy37-sketch/jobshield-ai.git
 cd jobshield-ai
 ```
 
