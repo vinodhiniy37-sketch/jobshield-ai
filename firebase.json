@@ -1,0 +1,39 @@
+{
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "jobscam-guard-b372b",
+          "appId": "1:830254813787:android:0b65e421e046a5fb7ba57e",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "jobscam-guard-b372b",
+          "configurations": {
+            "android": "1:830254813787:android:0b65e421e046a5fb7ba57e",
+            "ios": "1:830254813787:ios:e8c552375bbbaad57ba57e",
+            "macos": "1:830254813787:ios:e8c552375bbbaad57ba57e",
+            "web": "1:830254813787:web:20943b417a85e8577ba57e",
+            "windows": "1:830254813787:web:e3eeb7b09e7b72407ba57e"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "830254813787",
+    "project_id": "jobscam-guard-b372b",
+    "storage_bucket": "jobscam-guard-b372b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:830254813787:android:0b65e421e046a5fb7ba57e",
+        "android_client_info": {
+          "package_name": "com.jobscam.guard.jobscam_guard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "830254813787-qa6kvp0vu1o2fa3m8thq0e00srlco9ac.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMsyW1gbVK-8uocRU6TXesPio2oO0gGp8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "830254813787-qa6kvp0vu1o2fa3m8thq0e00srlco9ac.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
