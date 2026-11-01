@@ -92,7 +92,8 @@ class _SignupScreenState extends State<SignupScreen> {
           _isLoading = false;
         });
         final errorMsg = e.toString().replaceAll('Exception: ', '');
-        final isEmailInUse = errorMsg.contains('email-already-in-use');
+        final isEmailInUse = errorMsg.contains('email-already-in-use') ||
+            errorMsg.toLowerCase().contains('already exists');
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

@@ -5,8 +5,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
 class ApiService {
-  // Configured Base URL
-  // Can be configured via --dart-define=API_BASE_URL=https://... or runtime setter
+  // Render Deployed Backend Base URL
+  static const String defaultBaseUrl = 'https://jobshield-api-1m83.onrender.com/api';
+
+  // Configured Base URL override (supports --dart-define=API_BASE_URL=... or runtime setter)
   static String? _customProductionUrl;
   static void setProductionApiUrl(String url) => _customProductionUrl = url;
 
@@ -16,15 +18,7 @@ class ApiService {
     if (_customProductionUrl != null && _customProductionUrl!.isNotEmpty) {
       return _customProductionUrl!;
     }
-    if (kIsWeb) {
-      return 'http://localhost:5000/api';
-    }
-    try {
-      if (Platform.isAndroid) {
-        return 'http://10.0.2.2:5000/api';
-      }
-    } catch (_) {}
-    return 'http://localhost:5000/api';
+    return defaultBaseUrl;
   }
 
   static const String _tokenKey = 'jwt_token';
@@ -64,13 +58,17 @@ class ApiService {
     return headers;
   }
 
+  static const Duration requestTimeout = Duration(seconds: 45);
+
   // Send GET request
   Future<http.Response> get(String endpoint) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl$endpoint'),
-        headers: _getHeaders(),
-      );
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl$endpoint'),
+            headers: _getHeaders(),
+          )
+          .timeout(requestTimeout);
       return response;
     } catch (e) {
       throw Exception('GET request failed: $e');
@@ -80,11 +78,13 @@ class ApiService {
   // Send POST request
   Future<http.Response> post(String endpoint, Map<String, dynamic> body) async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl$endpoint'),
-        headers: _getHeaders(),
-        body: jsonEncode(body),
-      );
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl$endpoint'),
+            headers: _getHeaders(),
+            body: jsonEncode(body),
+          )
+          .timeout(requestTimeout);
       return response;
     } catch (e) {
       throw Exception('POST request failed: $e');
@@ -94,11 +94,13 @@ class ApiService {
   // Send PUT request
   Future<http.Response> put(String endpoint, Map<String, dynamic> body) async {
     try {
-      final response = await http.put(
-        Uri.parse('$baseUrl$endpoint'),
-        headers: _getHeaders(),
-        body: jsonEncode(body),
-      );
+      final response = await http
+          .put(
+            Uri.parse('$baseUrl$endpoint'),
+            headers: _getHeaders(),
+            body: jsonEncode(body),
+          )
+          .timeout(requestTimeout);
       return response;
     } catch (e) {
       throw Exception('PUT request failed: $e');
@@ -108,10 +110,12 @@ class ApiService {
   // Send DELETE request
   Future<http.Response> delete(String endpoint) async {
     try {
-      final response = await http.delete(
-        Uri.parse('$baseUrl$endpoint'),
-        headers: _getHeaders(),
-      );
+      final response = await http
+          .delete(
+            Uri.parse('$baseUrl$endpoint'),
+            headers: _getHeaders(),
+          )
+          .timeout(requestTimeout);
       return response;
     } catch (e) {
       throw Exception('DELETE request failed: $e');

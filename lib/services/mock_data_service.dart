@@ -61,7 +61,12 @@ class MockDataService with ChangeNotifier {
   final CoverLetterService coverLetterService = CoverLetterService();
   final InterviewService interviewService = InterviewService();
 
-  bool get isLoggedIn => apiService.token != null || _authService.currentUser != null;
+  bool _isAuthInitialized = false;
+  bool get isAuthInitialized => _isAuthInitialized;
+
+  bool get isLoggedIn =>
+      (apiService.token != null && apiService.token!.trim().isNotEmpty) ||
+      _authService.currentUser != null;
 
   // Career Profile State
   late CareerProfile _careerProfile = CareerProfile(
@@ -203,11 +208,14 @@ class MockDataService with ChangeNotifier {
   Future<void> _initService() async {
     try {
       await apiService.init();
-      if (apiService.token != null) {
+      if (apiService.token != null && apiService.token!.trim().isNotEmpty) {
         await loadDataFromServer();
       }
     } catch (e) {
       debugPrint('apiService init notice: $e');
+    } finally {
+      _isAuthInitialized = true;
+      notifyListeners();
     }
     _setupAuthListener();
   }
@@ -224,7 +232,7 @@ class MockDataService with ChangeNotifier {
   // Load live data from MongoDB backend database
   Future<void> loadDataFromServer() async {
     // 1. Fetch Profile from Backend
-    if (apiService.token != null) {
+    if (apiService.token != null && apiService.token!.trim().isNotEmpty) {
       try {
         final profileRes = await apiService.get('/profile');
         if (profileRes.statusCode == 200) {
@@ -238,6 +246,14 @@ class MockDataService with ChangeNotifier {
             profileImage = u['profileImage'] ?? profileImage;
             _userSecurityScore = (u['securityScore'] as num?)?.toInt() ?? _userSecurityScore;
           }
+        } else if (profileRes.statusCode == 401) {
+          // Token expired or invalidated, clear persisted session
+          debugPrint('Backend session expired (401), clearing token');
+          await apiService.clearToken();
+          name = 'Guest User';
+          email = 'guest@jobshield.ai';
+          notifyListeners();
+          return;
         }
       } catch (e) {
         debugPrint('Backend profile fetch error: $e');
@@ -365,7 +381,24 @@ class MockDataService with ChangeNotifier {
           notifyListeners();
           return true;
         }
+      } else {
+        try {
+          final data = jsonDecode(response.body);
+          if (data['message'] != null) {
+            throw Exception(data['message']);
+          }
+        } on FormatException {
+          throw Exception('Server returned error status ${response.statusCode}');
+        }
       }
+    } on Exception catch (e) {
+      if (e.toString().contains('already exists') ||
+          e.toString().contains('required') ||
+          e.toString().contains('valid email') ||
+          e.toString().contains('Password')) {
+        rethrow;
+      }
+      debugPrint('Backend registerUser notice, attempting fallback: $e');
     } catch (e) {
       debugPrint('Backend registerUser error, attempting fallback: $e');
     }

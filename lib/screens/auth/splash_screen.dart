@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import '../../theme/app_colors.dart';
-import 'onboarding_screen.dart';
+import '../../services/mock_data_service.dart';
+import 'login_screen.dart';
 import '../main_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -13,15 +14,15 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  bool _showSplash = true;
+  bool _minSplashDurationElapsed = false;
 
   @override
   void initState() {
     super.initState();
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(milliseconds: 2000), () {
       if (mounted) {
         setState(() {
-          _showSplash = false;
+          _minSplashDurationElapsed = true;
         });
       }
     });
@@ -29,20 +30,20 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_showSplash) {
+    final service = Provider.of<MockDataService>(context);
+
+    // Keep displaying the splash animation while loading or checking saved session
+    if (!_minSplashDurationElapsed || !service.isAuthInitialized) {
       return const SplashScreenContent();
     }
-    
-    // Once splash completes, display the main application screen.
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        return const MainScreen();
-      }
-    } catch (e) {
-      debugPrint('FirebaseAuth check notice: $e');
+
+    // Returning user with an active, verified session -> Go directly to Dashboard
+    if (service.isLoggedIn) {
+      return const MainScreen();
     }
-    return const MainScreen();
+
+    // New or logged-out user without an active session -> Always display Login / Signup first
+    return const LoginScreen();
   }
 }
 

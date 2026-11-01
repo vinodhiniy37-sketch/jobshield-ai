@@ -20,17 +20,19 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please provide all required fields' });
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+
     // Check if user already exists
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email: cleanEmail });
     if (userExists) {
       return res.status(400).json({ success: false, message: 'A user with this email already exists' });
     }
 
     // Create user
     const user = await User.create({
-      name,
-      email,
-      phone,
+      name: name.trim(),
+      email: cleanEmail,
+      phone: phone.trim(),
       password,
       location: location || '',
     });
@@ -55,6 +57,13 @@ const registerUser = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
+    if (error.code === 11000) {
+      return res.status(400).json({ success: false, message: 'A user with this email already exists' });
+    }
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(val => val.message);
+      return res.status(400).json({ success: false, message: messages.join('. ') });
+    }
     return res.status(500).json({ success: false, message: 'Server error during registration' });
   }
 };
